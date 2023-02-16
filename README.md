@@ -14,7 +14,6 @@ pnpm add with-multicall
 
 ```ts
 import { configureChains, createClient, mainnet, WagmiConfig } from 'wagmi'
-import { ReactNode } from 'react'
 import { publicProvider } from '@wagmi/core/providers/public'
 import { MetaMaskConnector } from '@wagmi/core/connectors/metaMask'
 
@@ -28,4 +27,4 @@ const client = createClient({
 })
 ```
 
-And thats all 😆 your calls will now be batched and sent in a single multicall transaction
+And thats all 😆 your calls will now be batched and sent in a multicall transaction
