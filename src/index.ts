@@ -1,4 +1,3 @@
-import { BaseProvider } from '@ethersproject/providers'
 import { Address, Chain, getContract } from '@wagmi/core'
 import { ethers } from 'ethers'
 import type { Deferrable } from 'ethers/lib/utils'
@@ -12,6 +11,7 @@ const defaultOptions = {
   timeWindow: 50,
   batchSize: 25,
   logs: false,
+  multicall3: '0xcA11bde05977b3631167028862bE2a173976CA11' as Address,
 }
 
 const createScheduler = (timeWindow: number, callback: VoidFunction) => {
@@ -28,6 +28,77 @@ const createScheduler = (timeWindow: number, callback: VoidFunction) => {
   }
 }
 
+export const _withMulticall = <Provider extends BaseProvider>(
+  provider: Provider,
+  options: Partial<typeof defaultOptions> = defaultOptions,
+) => {
+  const { timeWindow, batchSize, multicall3, logs } = { ...defaultOptions, ...options }
+
+  const { aggregate3 } = getContract({
+    address: multicall3,
+    abi: multicall3ABI,
+    signerOrProvider: provider,
+  })
+
+  let queue: DeferrableTransactionRequest[] = []
+
+  const scheduler = createScheduler(timeWindow, () => {
+    if (logs) console.info('End of batching time window, running multicall')
+    multicall(queue)
+    queue = []
+  })
+
+  const callbacks = new WeakMap<
+    object,
+    (r: Awaited<ReturnType<typeof aggregate3>>[number]) => void
+  >()
+
+  const multicall = async (txs: DeferrableTransactionRequest[]) => {
+    const calls = txs.map((tx) => ({
+      target: tx.to as Address,
+      callData: tx.data as `0x${string}`,
+      allowFailure: true,
+    }))
+    const results = await aggregate3(calls)
+    results.forEach((res, i) => callbacks.get(txs[i])?.(res))
+  }
+
+  const _call = provider.call
+
+  provider.call = async (
+    transaction: DeferrableTransactionRequest,
+    blockTag?: string | number | Promise<BlockTag>,
+  ): Promise<string> => {
+    if (transaction.nonce || transaction.gasLimit || transaction.gasPrice || transaction.value)
+      return _call(transaction, blockTag)
+
+    queue.push(transaction)
+
+    if (queue.length >= batchSize) {
+      if (logs) console.info('Batch limit achieved, running multicall')
+      scheduler.reset()
+      multicall(queue)
+      queue = []
+    }
+
+    scheduler.init()
+
+    return new Promise((resolve) =>
+      callbacks.set(transaction, ({ returnData, success }) => {
+        callbacks.delete(transaction)
+        if (!success) {
+          if (logs) console.info('Multicall failed, retrying as direct call')
+          return resolve(_call(transaction, blockTag))
+        }
+        return resolve(returnData)
+      }),
+    )
+  }
+
+  return provider
+}
+
+/** wrapper make it easier to use with wagmi */
 export const withMulticall =
   <Provider extends BaseProvider & { chains?: Chain[] }>(
     _provider: ({ chainId }: { chainId?: number }) => Provider,
@@ -40,68 +111,8 @@ export const withMulticall =
     const chain = provider.chains?.find((c) => c.id === chainId)
     const multicallAddress = chain?.contracts?.multicall3?.address
     if (!multicallAddress) return provider
-    const { timeWindow, batchSize, logs } = { ...defaultOptions, ...options }
 
-    const { aggregate3 } = getContract({
-      address: multicallAddress,
-      abi: multicall3ABI,
-      signerOrProvider: provider,
-    })
-
-    let queue: DeferrableTransactionRequest[] = []
-
-    const scheduler = createScheduler(timeWindow, () => {
-      if (logs) console.info('End of batching time window, running multicall')
-      run(queue)
-      queue = []
-    })
-
-    const callbacks = new WeakMap<
-      object,
-      (r: Awaited<ReturnType<typeof aggregate3>>[number]) => void
-    >()
-
-    const run = async (txs: DeferrableTransactionRequest[]) => {
-      const calls = txs.map((tx) => ({
-        target: tx.to as Address,
-        callData: tx.data as `0x${string}`,
-        allowFailure: true,
-      }))
-      const results = await aggregate3(calls)
-      results.forEach((res, i) => callbacks.get(txs[i])?.(res))
-    }
-
-    const _call = provider.call
-
-    provider.call = async (
-      transaction: DeferrableTransactionRequest,
-      blockTag?: string | number | Promise<BlockTag>,
-    ): Promise<string> => {
-      if (transaction.nonce || transaction.gasLimit || transaction.gasPrice || transaction.value)
-        return _call(transaction, blockTag)
-
-      queue.push(transaction)
-
-      if (queue.length > batchSize) {
-        if (logs) console.info('Batch limit achieved, running multicall')
-        scheduler.reset()
-        run(queue)
-        queue = []
-      }
-
-      scheduler.init()
-
-      return new Promise((resolve) =>
-        callbacks.set(transaction, ({ returnData, success }) => {
-          callbacks.delete(transaction)
-          if (!success) {
-            if (logs) console.info('Multicall failed, retring in direct call')
-            return resolve(_call(transaction, blockTag))
-          }
-          return resolve(returnData)
-        }),
-      )
-    }
-
-    return provider
+    return _withMulticall(provider, { ...options, multicall3: multicallAddress })
   }
+
+export default _withMulticall
