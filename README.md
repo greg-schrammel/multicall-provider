@@ -31,3 +31,6 @@ const client = createClient({
 ```
 
 And thats all 😆 your calls will now be batched and sent in a multicall transaction
+
+> **Warning**
+> The api will change, this is just a poc, maybe we should be call it multicallProvider?
