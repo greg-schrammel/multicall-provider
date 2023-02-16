@@ -73,13 +73,12 @@ export const withMulticall =
 
     const _call = provider.call
 
-    const call = async (
+    provider.call = async (
       transaction: DeferrableTransactionRequest,
       blockTag?: string | number | Promise<BlockTag>,
     ): Promise<string> => {
-      if (transaction.nonce || transaction.gasLimit || transaction.gasPrice || transaction.value) {
+      if (transaction.nonce || transaction.gasLimit || transaction.gasPrice || transaction.value)
         return _call(transaction, blockTag)
-      }
 
       queue.push(transaction)
 
@@ -103,8 +102,6 @@ export const withMulticall =
         }),
       )
     }
-
-    provider.call = call
 
     return provider
   }
