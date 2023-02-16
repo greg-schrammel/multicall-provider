@@ -74,6 +74,10 @@ export const withMulticall =
       transaction: DeferrableTransactionRequest,
       blockTag?: string | number | Promise<BlockTag>,
     ): Promise<string> => {
+      if (transaction.nonce || transaction.gasLimit || transaction.gasPrice || transaction.value) {
+        return provider.call(transaction, blockTag)
+      }
+
       queue.push(transaction)
 
       if (queue.length > batchSize) {
