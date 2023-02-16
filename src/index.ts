@@ -1,3 +1,4 @@
+import { BaseProvider } from '@ethersproject/providers'
 import { Address, Chain, getContract } from '@wagmi/core'
 import { ethers } from 'ethers'
 import type { Deferrable } from 'ethers/lib/utils'
@@ -36,9 +37,9 @@ export const withMulticall =
     const provider = _provider({ chainId })
     if (!chainId) return provider
 
-    const multicallAddress = provider.chains?.[chainId]?.contracts?.multicall3?.address
+    const chain = provider.chains?.find((c) => c.id === chainId)
+    const multicallAddress = chain?.contracts?.multicall3?.address
     if (!multicallAddress) return provider
-
     const { timeWindow, batchSize, logs } = { ...defaultOptions, ...options }
 
     const { aggregate3 } = getContract({
@@ -70,12 +71,14 @@ export const withMulticall =
       results.forEach((res, i) => callbacks.get(txs[i])?.(res))
     }
 
-    provider.call = async (
+    const _call = provider.call
+
+    const call = async (
       transaction: DeferrableTransactionRequest,
       blockTag?: string | number | Promise<BlockTag>,
     ): Promise<string> => {
       if (transaction.nonce || transaction.gasLimit || transaction.gasPrice || transaction.value) {
-        return provider.call(transaction, blockTag)
+        return _call(transaction, blockTag)
       }
 
       queue.push(transaction)
@@ -94,12 +97,14 @@ export const withMulticall =
           callbacks.delete(transaction)
           if (!success) {
             if (logs) console.info('Multicall failed, retring in direct call')
-            return resolve(provider.call(transaction, blockTag))
+            return resolve(_call(transaction, blockTag))
           }
           return resolve(returnData)
         }),
       )
     }
+
+    provider.call = call
 
     return provider
   }
