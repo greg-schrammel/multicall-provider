@@ -22,7 +22,10 @@ import { withMulticall } from 'with-multicall'
 const { chains, provider } = configureChains([mainnet], [publicProvider()])
 
 const client = createClient({
-  provider: withMulticall(provider),
+  provider: withMulticall(provider, {
+    batchSize: 25, // amount of txs per multicall call
+    timeWindow: 50, // time in ms to batch new txs before executing
+  }),
   connectors: [new MetaMaskConnector({ chains })],
 })
 ```
