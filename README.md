@@ -1,46 +1,31 @@
-## eeemiter
+# with-multicall
 
-yet another js event emmiter
+Enchance your provider with auto multicall batching
 
-- ✅ Super simple and small
-- 🥳 Typesafe
-- 📦 Zero deps
+```bash
+npm install with-multicall
 
-```sh
-npm install eeemiter
+yarn add with-multicall
 
-yarn add eeemiter
-
-pnpm add eeemiter
+pnpm add with-multicall
 ```
 
-### Usage
+## Usage
 
 ```ts
-import { createEventEmmiter } from 'eeemiter'
+import { configureChains, createClient, mainnet, WagmiConfig } from 'wagmi'
+import { ReactNode } from 'react'
+import { publicProvider } from '@wagmi/core/providers/public'
+import { MetaMaskConnector } from '@wagmi/core/connectors/metaMask'
 
-type MyEvents =
-  | { type: 'foo'; payload: string }
-  | { type: 'bar'; payload: { foo: 'lalala' } }
+import { withMulticall } from 'with-multicall'
 
-const events = createEventEmmiter<MyEvents>()
+const { chains, provider } = configureChains([mainnet], [publicProvider()])
 
-// register listener
-const unsubscribe = events.on('bar', (payload) => {
-  // payload type infered from event type
-  payload.foo
+const client = createClient({
+  provider: withMulticall(provider),
+  connectors: [new MetaMaskConnector({ chains })],
 })
-
-// emit event, typesafe, autocompleted, payload is string...
-events.emit('foo', 'bar')
-
-// once: auto unsubscribes after first execution
-events.once('foo', s => s)
-
-// remove listeners by event type
-event.remove('bar')
-
-// clear all listeners
-event.clear()
 ```
 
+And thats all 😆 your calls will now be batched and sent in a single multicall transaction

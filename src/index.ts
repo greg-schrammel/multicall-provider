@@ -27,7 +27,7 @@ const createScheduler = (timeWindow: number, callback: VoidFunction) => {
   }
 }
 
-export const enchanceMulticall =
+export const withMulticall =
   <Provider extends BaseProvider & { chains?: Chain[] }>(
     _provider: ({ chainId }: { chainId?: number }) => Provider,
     options: Partial<typeof defaultOptions> = defaultOptions,
