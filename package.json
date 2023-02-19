@@ -1,6 +1,6 @@
 {
-  "name": "with-multicall",
-  "version": "0.0.6",
+  "name": "multicall-provider",
+  "version": "0.1.6",
   "repository": {
     "type": "git",
     "url": "https://github.com/greg-schrammel/with-multicall.git"
@@ -16,16 +16,22 @@
   ],
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./wagmi": "./dist/wagmi.js"
+  },
   "scripts": {
     "build:types": "tsc --emitDeclarationOnly",
-    "build": "vite build && pnpm run build:types"
+    "build": "vite build && pnpm run build:types",
+    "test": "vitest"
   },
   "devDependencies": {
+    "@wagmi/core": "^0.9.5",
+    "ethers": "^5.7.2",
     "prettier": "^2.8.3",
     "typescript": "^4.9.5",
-    "vite": "^4.0.4",
-    "@wagmi/core": "^0.9.5",
-    "ethers": "^5.7.2"
+    "vitest": "^0.28.5",
+    "vite": "^4.0.4"
   },
   "peerDependencies": {
     "@wagmi/core": "^0.9.5",

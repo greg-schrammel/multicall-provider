@@ -4,8 +4,10 @@ import { defineConfig } from 'vite'
 export default defineConfig({
   build: {
     lib: {
-      entry: resolve(__dirname, './src/index.ts'),
-      fileName: 'index',
+      entry: {
+        index: './src/index.ts',
+        wagmi: './src/wagmi.ts',
+      },
       formats: ['es'],
     },
     rollupOptions: {
