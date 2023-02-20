@@ -93,7 +93,7 @@ You could `useContractReads` on the parent and pass the balances down.
 but what if you also need to use the Dai balance in another place way down the tree?  
 I mean the closer to the component using the data the better
 
-wrapping your wagmi provider with `multicallProvider`, you don't need to worry about that, need to use the Dai balance down the tree? `react-query`(used in `wagmi`) will have it cached for you already, because of the first `useContractRead`, gg
+wrapping your wagmi provider with `multicallProvider`, you don't need to worry about that, need to use the Dai balance down the tree? `wagmi` will have it cached for you already, because of the first `useContractRead`, gg
 
 ### Potential Issues
 
