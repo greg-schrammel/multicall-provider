@@ -1,6 +1,6 @@
 {
   "name": "multicall-provider",
-  "version": "0.1.12",
+  "version": "0.1.14",
   "repository": {
     "type": "git",
     "url": "https://github.com/greg-schrammel/multicall-provider.git"
@@ -20,6 +20,16 @@
   "exports": {
     ".": "./dist/index.js",
     "./wagmi": "./dist/wagmi.js"
+  },
+  "typesVersions": {
+    "*": {
+      ".": [
+        "dist/index.d.ts"
+      ],
+      "wagmi": [
+        "dist/wagmi.d.ts"
+      ]
+    }
   },
   "scripts": {
     "build:types": "tsc --emitDeclarationOnly",
