@@ -1,0 +1,5 @@
+{
+  "internal": true,
+  "module": "../dist/wagmi.js",
+  "types": "../dist/wagmi.d.ts"
+}
