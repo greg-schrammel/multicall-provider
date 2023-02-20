@@ -4,7 +4,7 @@ import { multicallProvider } from './index'
 import { providers } from 'ethers'
 import { erc20ABI, getContract } from '@wagmi/core'
 
-const provider = new providers.AlchemyProvider(420, 'xTG-126O3dwfeYH99S_0-ELyJ8tkUwLf')
+const provider = new providers.AlchemyProvider(420, process.env.alchemyKey)
 const wrappedProvider = multicallProvider(provider)
 
 const dai = getContract({
