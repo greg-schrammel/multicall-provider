@@ -42,10 +42,7 @@ const scheduler = <Id = BlockTag>(timeWindow: number, callback: (id: Id) => void
 }
 
 const cloneClassInstance = <T>(instance: T): T =>
-  Object.assign(
-    Object.create(Object.getPrototypeOf(instance)),
-    JSON.parse(JSON.stringify(instance)),
-  )
+  Object.assign(Object.create(Object.getPrototypeOf(instance)), instance)
 
 export const multicallProvider = <Provider extends BaseProvider>(
   provider: Provider,
@@ -106,9 +103,10 @@ export const multicallProvider = <Provider extends BaseProvider>(
 
     schedule.start(_blockTag)
 
-    return new Promise((resolve) =>
+    return new Promise((resolve, reject) =>
       callbacks.set(transaction, ({ returnData, success }) => {
         callbacks.delete(transaction)
+        // if (!success) reject(returnData)
         return resolve(returnData)
       }),
     )
