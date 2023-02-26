@@ -84,11 +84,11 @@ const App = () => {
 }
 ```
 
-Inside each `<UserBalance/>` you have a `useContractRead` to fetch the balance of the token.  
+Inside each `<UserBalance/>` you have a `useContractRead` to fetch the balance of the token.
 
-This app would start by making 3 different rpc calls, you may see how this grows depending on your app. 
+This app would start by making 3 different rpc calls, you may see how this grows depending on your app.
 
-You could `useContractReads` on the parent and pass the balances down.  
+You could `useContractReads` on the parent and pass the balances down.
 
 but what if you also need to use the Dai balance in another place way down the tree?  
 I mean the closer to the component using the data the better
@@ -97,4 +97,4 @@ wrapping your wagmi provider with `multicallProvider`, you don't need to worry a
 
 ### Potential Issues
 
-`batchSize`: eth_call has a timeout restriction at node level, if it fails with a node error, consider lowering your batch size, 25 should be fine tho
+`batchSize`: eth_call has a timeout restriction at node level, if it fails with a node error, consider lowering your batch size, 50 should be fine tho

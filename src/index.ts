@@ -18,7 +18,7 @@ export type MulticallProviderOptions = {
 }
 const defaultOptions = {
   timeWindow: 50,
-  batchSize: 25,
+  batchSize: 50,
   logs: false,
   multicall3: '0xcA11bde05977b3631167028862bE2a173976CA11',
 } satisfies MulticallProviderOptions
@@ -68,6 +68,7 @@ export const multicallProvider = <Provider extends BaseProvider>(
     if (logs)
       console.info(
         `Multicalling the following addresses`,
+        overrides?.blockTag && `[blockTag: ${overrides?.blockTag}]`,
         calls.map((m) => m.target),
       )
     const results = await aggregate3(calls, overrides)
@@ -78,6 +79,7 @@ export const multicallProvider = <Provider extends BaseProvider>(
 
   const schedule = scheduler(timeWindow, (blockTag) => {
     if (logs) console.info('End of batching time window, running multicall')
+    schedule.stop(blockTag)
     multicall(queue[blockTag], { blockTag })
     queue[blockTag] = []
   })
