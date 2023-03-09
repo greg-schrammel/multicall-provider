@@ -85,7 +85,7 @@ export const multicallProvider = <TProvider extends BaseProvider | WebSocketProv
     queue[blockTag] = []
   })
 
-  const callbacks = new WeakMap<object, (r: Aggregate3Result) => void>()
+  const callbacks = new Map<object, (r: Aggregate3Result) => void>()
 
   const wrappedProvider = cloneClassInstance(provider)
 
