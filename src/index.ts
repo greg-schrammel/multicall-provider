@@ -6,6 +6,7 @@ import { multicall3ABI } from './multicall3Abi'
 type DeferrableTransactionRequest = Deferrable<ethers.providers.TransactionRequest>
 type BlockTag = ethers.providers.BlockTag
 type BaseProvider = ethers.providers.BaseProvider
+type WebSocketProvider = ethers.providers.WebSocketProvider
 
 type CallQueue = Record<BlockTag, DeferrableTransactionRequest[]>
 type Aggregate3Result = { success: boolean; returnData: Address }
@@ -44,8 +45,8 @@ const scheduler = <Id = BlockTag>(timeWindow: number, callback: (id: Id) => void
 const cloneClassInstance = <T>(instance: T): T =>
   Object.assign(Object.create(Object.getPrototypeOf(instance)), instance)
 
-export const multicallProvider = <Provider extends BaseProvider>(
-  provider: Provider,
+export const multicallProvider = <TProvider extends BaseProvider | WebSocketProvider>(
+  provider: TProvider,
   options: Partial<MulticallProviderOptions> = defaultOptions,
 ) => {
   const { timeWindow, batchSize, multicall3, logs } = { ...defaultOptions, ...options }
