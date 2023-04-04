@@ -14,14 +14,14 @@ pnpm add multicall-provider
 
 ## Usage
 
-- It implements a buffer with a configurable 50ms delay and aggregates all operations received within that window.
+- It implements a buffer with a configurable 50ms delay and aggregates all operations received within that window
 - Calls targeting different block heights (`blockTags`) are aggregated based on the blockTag
 - Transactions including `from`, `value` or `gasPrice` skip aggregation and are forwarded to the underlying provider
 
 ```ts
 const provider = multicallProvider(new providers.JsonRpcProvider(...), {
   batchSize: 25, // max amount of transactions per multicall call
-  timeWindow: 50, // time in ms to wait for new transactions before sending
+  timeWindow: 0, // time in ms to wait for new transactions before sending (0 still gets all from current event loop which is probably enough on most cases)
   multicall3: '' // multicall3 contract address, only the aggregate3 method is used
 })
 ```
