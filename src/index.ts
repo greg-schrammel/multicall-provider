@@ -109,7 +109,7 @@ export const multicallProvider = <TProvider extends BaseProvider | WebSocketProv
     return new Promise((resolve, reject) =>
       callbacks.set(transaction, ({ returnData, success }) => {
         callbacks.delete(transaction)
-        // if (!success) reject(returnData)
+        if (!success) reject(returnData)
         return resolve(returnData)
       }),
     )
