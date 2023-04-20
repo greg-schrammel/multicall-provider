@@ -18,8 +18,8 @@ export type MulticallProviderOptions = {
   multicall3: Address
 }
 const defaultOptions = {
-  timeWindow: 50,
-  batchSize: 50,
+  timeWindow: 0,
+  batchSize: 512,
   logs: false,
   multicall3: '0xcA11bde05977b3631167028862bE2a173976CA11',
 } satisfies MulticallProviderOptions
